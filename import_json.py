@@ -582,8 +582,8 @@ def handle_region(data, sequence_id, region):
     params = defaultdict(lambda: None)
     params['contig_edge'] = region.contig_edge
     params['location'] = str(region.location)
-    params['start_pos'] = int(region.location.start)
-    params['end_pos'] = int(region.location.end)
+    params['start_pos'] = int(region.start)
+    params['end_pos'] = int(region.end)
     params['sequence_id'] = sequence_id
     params["region_number"] = region.get_region_number()
 
