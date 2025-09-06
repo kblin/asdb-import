@@ -35,8 +35,8 @@ def store_clusterblast(data: RecordData, results, algorithm):
 
     assert isinstance(results, clusterblast.results.RegionResult), type(results)
     # limit to the number of drawn hits, normally set with DEFAULT_AS_OPTIONS.cb_nclusters
-    for i, hit in enumerate(results.ranking[:len(results.svg_builder.hits)]):
-        ref_cluster, _ = hit
+    for i, hit in enumerate(results.ranking[:clusterblast.results.get_display_limit()]):
+        ref_cluster, score = hit
         # skip hits that refer back to this specific region, but allow other hits to this record
         if ref_cluster.accession == data.record.id and ref_cluster.cluster_label == region_string:
             continue
@@ -46,7 +46,7 @@ def store_clusterblast(data: RecordData, results, algorithm):
             "rank": i + 1,
             "acc": ref_cluster.accession + (("_" + ref_cluster.cluster_label) if algorithm != "knownclusterblast" else ""),
             "description": ref_cluster.description,
-            "similarity": results.svg_builder.hits[i].similarity,
+            "similarity": score.similarity,
         }
         if algorithm == "clusterblast":
             ref_id = _get_reference_region_id(data.cursor, ref_cluster.accession, ref_cluster.cluster_label)
@@ -57,14 +57,16 @@ VALUES (%(rank)s, %(region_id)s, %(acc)s, %(description)s, %(similarity)s, %(alg
 RETURNING clusterblast_hit_id
     """, params)
     if algorithm == "knownclusterblast" and results.ranking:
-        best = results.ranking[0][0]
+        best = results.get_best_match()
+        if not best:
+            return
         data.cursor.execute("""
             UPDATE antismash.regions SET
                 best_mibig_hit_acc = %s,
                 best_mibig_hit_description = %s,
                 best_mibig_hit_similarity = %s
             WHERE region_id = %s
-        """, (best.accession, best.description, results.svg_builder.hits[0].similarity, data.current_region_id,))
+        """, (best.identifier, best.description, best.similarity_percentage, data.current_region_id,))
 
 
 def import_region_results(data: RecordData, region: Region, deferred: bool = False) -> None:
