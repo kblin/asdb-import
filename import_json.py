@@ -65,6 +65,8 @@ def main(filename, db_connection):
     with connection.cursor() as cursor:
         try:
             short_name, _ = os.path.splitext(os.path.basename(filename))
+            if short_name.endswith(".json"):
+                short_name, _ = os.path.splitext(short_name)
             id_parts = short_name.split("_")
             if id_parts[0] not in ("GCF", "GCA"):
                 raise MissingAssemblyIdError("assembly ID does begin with 'GCF'/'GCA'")

@@ -4,6 +4,7 @@
 """ A package with shared file data loading functions """
 
 import bz2
+import gzip
 from io import StringIO
 import json
 from typing import Any
@@ -16,6 +17,9 @@ def read_json(filename: str) -> tuple[RawJson, AntismashResults]:
     """Read the antiSMASH json file and return both the raw dict and the AntismashResults object"""
     if filename.endswith(".bz2"):
         with bz2.open(filename, mode='rt', encoding="utf-8") as hdl:
+            handle = StringIO(hdl.read())
+    elif filename.endswith(".gz"):
+        with gzip.open(filename, mode='rt', encoding="utf-8") as hdl:
             handle = StringIO(hdl.read())
     else:
         with open(filename, encoding="utf-8") as hdl:

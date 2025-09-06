@@ -16,7 +16,7 @@ readonly SEQDIR=$1
 readonly TAXONOMY=$2
 
 echo "Importing base results"
-for infile in $(find ${SEQDIR} -name "*.json"); do
+for infile in $(find ${SEQDIR} -name "*.json*"); do
     grep -q ${infile} imported.txt && echo "Skipping ${infile}" && continue
     echo "importing ${infile}"
     if $IMPORTDIR/import_json.py --taxonomy ${TAXONOMY} ${infile}; then
@@ -29,7 +29,7 @@ done || { echo "Skipping deferred imports due to at least one base result import
 
 
 echo "Importing deferred results"
-for infile in $(find ${SEQDIR} -name "*.json"); do
+for infile in $(find ${SEQDIR} -name "*.json*"); do
     grep -q ${infile} deferred_imported.txt && echo "Skipping ${infile}" && continue
     echo "importing deferred portions of ${infile}"
     if $IMPORTDIR/import_deferred.py ${infile}; then
