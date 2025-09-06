@@ -2,7 +2,6 @@
 """Import an antiSMASH JSON results file into the antiSMASH database."""
 from argparse import ArgumentParser, FileType
 from collections import defaultdict
-import hashlib
 import json
 import os
 import sys
@@ -581,7 +580,7 @@ def parse_specificity(feature, params):
 def handle_region(data, sequence_id, region):
     """Handle cluster features."""
     assert region
-    params = defaultdict(lambda: None)
+    params: dict[str, str | int | None] = defaultdict(lambda: None)
     params['contig_edge'] = region.contig_edge
     params['location'] = str(region.location)
     params['start_pos'] = int(region.start)
